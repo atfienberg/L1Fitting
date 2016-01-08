@@ -1,0 +1,6 @@
+[submodule "templateFitter"]
+	path = templateFitter
+	url = https://github.com/atfienberg/templateFitter.git
+[submodule "json11"]
+	path = json11
+	url = https://github.com/dropbox/json11.git

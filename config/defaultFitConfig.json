@@ -1,0 +1,31 @@
+{
+  "author": "Aaron Fienberg",
+  "comment": "This file contains configuration info needed for pulse analysis",
+
+  "digitizers": [
+    {
+      "type": "caen1742",
+      "branchName": "caen_0",
+      "detectors": [
+        {
+          "name": "sipm1",
+          "templateFile": "testTemplate.root",
+          "channel": 0
+        }
+      ]
+    }
+  ],
+
+  "templateBaseDir": "/home/newg2/Workspace/L1Tests/fitting/templates",
+  
+  "defaultDetector": {
+    "templateBuffer": 10,
+    "templateLength": 100,
+    "fitLength": 30,
+    "peakIndex": 14,
+    "negPolarity": true,
+    "draw": false
+  },
+
+  "startEntry" : 5
+}

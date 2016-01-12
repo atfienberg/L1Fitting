@@ -1,7 +1,7 @@
 {
   "author": "Aaron Fienberg",
   "comment": "This file contains configuration info needed for pulse analysis",
-
+  
   "digitizers": [
     {
       "type": "caen1742",
@@ -24,8 +24,8 @@
     "fitLength": 30,
     "peakIndex": 14,
     "negPolarity": true,
-    "draw": false
+    "draw": true
   },
 
-  "startEntry" : 5
+  "startEntry": 5
 }

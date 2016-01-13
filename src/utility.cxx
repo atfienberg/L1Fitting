@@ -172,8 +172,8 @@ void displayFit(TemplateFitter& tf, TemplateFitter::Output out,
   double yMin = g->GetYaxis()->GetXmin();
   double yMax = g->GetYaxis()->GetXmax();
   std::unique_ptr<TPaveText> txtbox(
-      new TPaveText(15 + sampleTimes[0], yMin + (yMax - yMin) * 0.5,
-                    29 + sampleTimes[0], yMin + (yMax - yMin) * 0.1));
+      new TPaveText(18 + sampleTimes[0], yMin + (yMax - yMin) * 0.5,
+                    28 + sampleTimes[0], yMin + (yMax - yMin) * 0.1));
   txtbox->SetFillColor(kWhite);
   func->SetParameter(6, out.pedestal);
   for (int i = 0; i < nPulses; ++i) {

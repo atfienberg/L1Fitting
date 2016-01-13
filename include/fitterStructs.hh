@@ -21,6 +21,7 @@ struct pulseSummary {
   Double_t time;
   Double_t threeSampleTime;
   Double_t chi2;
+  Bool_t fitConverged;
 };
 
 struct fitConfiguration {

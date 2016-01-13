@@ -20,7 +20,7 @@
 // ROOT includes
 #include "TFile.h"
 #include "TTree.h"
- 
+
 // project includes
 #include "fitterStructs.hh"
 #include "json11.hpp"
@@ -92,7 +92,7 @@ int main(int argc, char const* argv[]) {
         outTree.Branch(
             det.name.c_str(), &det.pSum.energy,
             "energy/D:baseline/D:threeSampleAmpl/D:time/D:threeSampleTime/"
-            "D:chi2/D");
+            "D:chi2/D:fitConverged/O");
       }
     }
   }
@@ -114,7 +114,9 @@ int main(int argc, char const* argv[]) {
             peakptr = std::max_element(trace, trace + CAEN_1742_LN);
           }
 
-          assert(peakptr - trace >= det.conf.peakIndex);
+          assert(peakptr - det.conf.peakIndex >= trace);
+          assert(peakptr - det.conf.peakIndex + det.conf.fitLength <=
+                 trace + CAEN_1742_LN);
           std::copy(peakptr - det.conf.peakIndex,
                     peakptr - det.conf.peakIndex + det.conf.fitLength,
                     fitSamples.begin());
@@ -131,9 +133,10 @@ int main(int argc, char const* argv[]) {
                   (4.0 * peakptr[0] - 2.0 * (peakptr[1] + peakptr[-1]));
 
           det.pSum = {out.scales[0], out.pedestal, tsa - out.pedestal,
-                      out.times[0] + (peakptr - trace), tst, out.chi2};
+                      out.times[0] + (peakptr - trace), tst, out.chi2,
+                      out.converged};
 
-          if (det.conf.negPolarity){
+          if (det.conf.negPolarity) {
             det.pSum.energy *= -1;
             det.pSum.threeSampleAmpl *= -1;
           }

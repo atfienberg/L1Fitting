@@ -27,6 +27,7 @@
 
 #include "daqStructs.hh"
 #include "fitterStructs.hh"
+
 using namespace std;
 
 namespace {

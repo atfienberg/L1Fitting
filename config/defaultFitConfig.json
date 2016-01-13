@@ -9,14 +9,19 @@
       "detectors": [
         {
           "name": "sipm1",
-          "templateFile": "testTemplate.root",
+          "templateFile": "sipm1Template.root",
           "channel": 0
+        },
+	{
+          "name": "pmt",
+          "templateFile": "pmtTemplate.root",
+          "channel": 2
         }
       ]
     }
   ],
 
-  "templateBaseDir": "/home/newg2/Workspace/L1Tests/fitting/templates",
+  "templateBaseDir": "/home/newg2/Workspace/L1Tests/fitting/templates/firstTemplates",
   
   "defaultDetector": {
     "templateBuffer": 10,
@@ -24,7 +29,7 @@
     "fitLength": 30,
     "peakIndex": 14,
     "negPolarity": true,
-    "draw": true
+    "draw": false
   },
 
   "startEntry": 5

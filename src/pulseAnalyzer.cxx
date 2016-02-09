@@ -98,6 +98,8 @@ int main(int argc, char const* argv[]) {
   }
 
   // do the fitting
+  double chi2cutoff = conf.object_items().at("chi2Cutoff").number_value();
+
   for (int i = conf["startEntry"].int_value(); i < inTree->GetEntries(); ++i) {
     inTree->GetEntry(i);
 
@@ -122,7 +124,22 @@ int main(int argc, char const* argv[]) {
                     fitSamples.begin());
 
           auto out = det.fitter.fit(fitSamples, det.conf.peakIndex);
-
+	  //try again if bad fit
+	  if ((out.chi2 > chi2cutoff) || 
+	      (det.conf.negPolarity ? (out.scales[0] > 0) : (out.scales[0] < 0))) {
+	    out = det.fitter.fit(fitSamples, det.conf.peakIndex - 1);
+	  }
+	  //try one more time
+	  if ((out.chi2 > chi2cutoff) || 
+	      (det.conf.negPolarity ? (out.scales[0] > 0) : (out.scales[0] < 0))) {
+	    out = det.fitter.fit(fitSamples, det.conf.peakIndex + 1);
+	  }
+	  //this fit has failed
+	  if ((out.chi2 > chi2cutoff) || 
+	      (det.conf.negPolarity ? (out.scales[0] > 0) : (out.scales[0] < 0))) {		
+	    out.converged = false;
+	  }
+       
           double tsa =
               peakptr[0] +
               (peakptr[1] - peakptr[-1]) * (peakptr[1] - peakptr[-1]) /

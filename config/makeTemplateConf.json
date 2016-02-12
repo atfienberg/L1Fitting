@@ -2,5 +2,5 @@
   "nTimeBins": 5,
   "nBinsPseudoTime": 500,
   "baselineFitLength": 50,
-  "minPeak": 800
+  "minPeak": 3400
 }

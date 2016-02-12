@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH /home/newg2/Packages/root/etc/cmake/)
 find_package(ROOT REQUIRED)
 set(EIGEN_DIR /usr/include/eigen3)
 
-add_definitions(-std=c++0x -Wall)
+add_definitions(-std=c++0x -Wall -Wextra)
 
 file(GLOB libsrcs 
 	${PROJECT_SOURCE_DIR}/templateFitter/src/*.cxx

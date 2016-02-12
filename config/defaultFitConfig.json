@@ -21,7 +21,7 @@
     }
   ],
 
-  "templateBaseDir": "/home/newg2/Workspace/L1Tests/fitting/templates/firstTemplates",
+  "templateBaseDir": "/home/newg2/Workspace/L1Tests/fitting/templates/glueTemplates",
   
   "defaultDetector": {
     "templateBuffer": 10,
@@ -32,5 +32,7 @@
     "draw": false
   },
 
-  "startEntry": 5
+  "startEntry": 0,
+
+  "chi2Cutoff": 10000.0
 }

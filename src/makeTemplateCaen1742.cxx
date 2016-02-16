@@ -52,7 +52,7 @@ typedef struct traceSummary {
 } traceSummary;
 
 traceSummary processTrace(unsigned short* trace);
-vector<double> correctTrace(unsigned short* trace, traceSummary summary);
+vector<double> correctTrace(unsigned short* trace, const traceSummary& summary);
 void readConfigs(const char* fitConf, const char* detectorName);
 json11::Json valueFromDetectorOrDefault(const std::string& key,
                                         const json11::Json::object& detector,
@@ -262,7 +262,7 @@ traceSummary processTrace(unsigned short* trace) {
   return results;
 }
 
-vector<double> correctTrace(unsigned short* trace, traceSummary summary) {
+vector<double> correctTrace(unsigned short* trace, const traceSummary &summary) {
   vector<double> correctedTrace(templateLength);
   if (summary.bad) {
     for (int i = 0; i < templateLength; ++i) correctedTrace[i] = 0;

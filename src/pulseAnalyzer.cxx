@@ -46,9 +46,9 @@ json11::Json parseConfig(const std::string& confFileName,
 /**
  * @brief Display a root plot of a pulse fit
  */
-void displayFit(TemplateFitter& tf, TemplateFitter::Output out,
-                std::vector<UShort_t> sampleTimes, std::vector<UShort_t> trace,
-                detector& det);
+void displayFit(TemplateFitter& tf, const TemplateFitter::Output& out,
+                const std::vector<UShort_t>& sampleTimes, const std::vector<UShort_t>& trace,
+                const detector& det);
 
 int main(int argc, char const* argv[]) {
   std::string configfile;

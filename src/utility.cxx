@@ -106,9 +106,9 @@ json11::Json parseConfig(const std::string& confFileName,
   return confJson;
 }
 
-void displayFit(TemplateFitter& tf, TemplateFitter::Output out,
-                std::vector<UShort_t> sampleTimes, std::vector<UShort_t> trace,
-                detector& det) {
+void displayFit(TemplateFitter& tf, const TemplateFitter::Output& out,
+                const std::vector<UShort_t>& sampleTimes, const std::vector<UShort_t>& trace,
+                const detector& det) {
   const int nPulses = out.times.size();
 
   // print to terminal

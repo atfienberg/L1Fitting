@@ -58,8 +58,8 @@ int main(int argc, char const* argv[]) {
     exit(EXIT_FAILURE);
   } else if (argc == 3) {
     configfile =
-        "/home/newg2/Workspace/L1Tests/fitting/config/"
-        "defaultFitConfig.json";
+      "/home/newg2/Workspace/L1Tests/fitting/config/"
+      "defaultFitConfig.json";
   } else {
     configfile = argv[3];
   }
@@ -90,9 +90,9 @@ int main(int argc, char const* argv[]) {
 
       for (auto& det : dig.detectors) {
         outTree.Branch(
-            det.name.c_str(), &det.pSum.energy,
-            "energy/D:baseline/D:threeSampleAmpl/D:time/D:threeSampleTime/"
-            "D:chi2/D:fitConverged/O");
+		       det.name.c_str(), &det.pSum.energy,
+		       "energy/D:baseline/D:threeSampleAmpl/D:time/D:threeSampleTime/"
+		       "D:chi2/D:fitConverged/O");
       }
     }
   }
@@ -128,26 +128,26 @@ int main(int argc, char const* argv[]) {
 	  if ((out.chi2 > chi2cutoff) || 
 	      (det.conf.negPolarity ? (out.scales[0] > 0) : (out.scales[0] < 0))) {
 	    out = det.fitter.fit(fitSamples, det.conf.peakIndex - 1);
-	  }
-	  //try one more time
-	  if ((out.chi2 > chi2cutoff) || 
-	      (det.conf.negPolarity ? (out.scales[0] > 0) : (out.scales[0] < 0))) {
-	    out = det.fitter.fit(fitSamples, det.conf.peakIndex + 1);
-	  }
-	  //this fit has failed
-	  if ((out.chi2 > chi2cutoff) || 
-	      (det.conf.negPolarity ? (out.scales[0] > 0) : (out.scales[0] < 0))) {		
-	    out.converged = false;
+	    // try again if still bad
+	    if ((out.chi2 > chi2cutoff) || 
+		(det.conf.negPolarity ? (out.scales[0] > 0) : (out.scales[0] < 0))) {
+	      out = det.fitter.fit(fitSamples, det.conf.peakIndex + 1);
+	      //if still bad, call it a failure
+	      if ((out.chi2 > chi2cutoff) || 
+		  (det.conf.negPolarity ? (out.scales[0] > 0) : (out.scales[0] < 0))) {		
+		out.converged = false;
+	      }
+	    }
 	  }
        
           double tsa =
-              peakptr[0] +
-              (peakptr[1] - peakptr[-1]) * (peakptr[1] - peakptr[-1]) /
-                  (16.0 * peakptr[0] - 8.0 * (peakptr[1] + peakptr[-1]));
+	    peakptr[0] +
+	    (peakptr[1] - peakptr[-1]) * (peakptr[1] - peakptr[-1]) /
+	    (16.0 * peakptr[0] - 8.0 * (peakptr[1] + peakptr[-1]));
           double tst =
-              peakptr - trace +
-              (peakptr[1] - peakptr[-1]) /
-                  (4.0 * peakptr[0] - 2.0 * (peakptr[1] + peakptr[-1]));
+	    peakptr - trace +
+	    (peakptr[1] - peakptr[-1]) /
+	    (4.0 * peakptr[0] - 2.0 * (peakptr[1] + peakptr[-1]));
 
           det.pSum = {out.scales[0], out.pedestal, tsa - out.pedestal,
                       out.times[0] + (peakptr - trace), tst, out.chi2,

@@ -7,32 +7,33 @@
       "type": "caen1742",
       "branchName": "caen_0",
       "detectors": [
+       
+      ]
+    },
+    {
+      "type": "caen5730",
+      "branchName": "caen_5730",
+      "detectors": [
         {
-          "name": "sipm1",
-          "templateFile": "sipm1Template.root",
-          "channel": 0
-        },
-	{
-          "name": "pmt",
-          "templateFile": "pmtTemplate.root",
+          "name": "pmt1",
+          "templateFile": "pmt1Template.root",
           "channel": 2
         }
       ]
     }
   ],
 
-  "templateBaseDir": "/home/newg2/Workspace/L1Tests/fitting/templates/glueTemplates",
+  "templateBaseDir": "/home/venanzoni/testBeam/L1Fitting/build/",
   
   "defaultDetector": {
     "templateBuffer": 10,
     "templateLength": 100,
     "fitLength": 30,
     "peakIndex": 14,
+    "wiggleRoom": 3,
     "negPolarity": true,
-    "draw": false
+    "draw": true
   },
 
-  "startEntry": 0,
-
-  "chi2Cutoff": 10000.0
+  "startEntry": 0
 }

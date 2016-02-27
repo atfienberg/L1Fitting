@@ -25,7 +25,7 @@
 
 #include "json11.hpp"
 
-#include "daqStructs.hh"
+#include "common.hh"
 #include "fitterStructs.hh"
 
 using namespace std;
@@ -34,7 +34,7 @@ namespace {
 int templateLength;
 int nBinsPseudoTime;
 int nTimeBins;
-int traceLength = CAEN_1742_LN;
+int traceLength = CAEN_5730_LN;
 int baselineFitLength;
 int bufferZone;
 int minPeak;
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 
   if (argc == 4) {
     readConfigs(
-        "/home/newg2/Workspace/L1Tests/fitting/config/defaultFitConfig.json",
+        "/home/venanzoni/testBeam/L1Fitting/config/defaultFitConfig.json",
         argv[3]);
   } else {
     readConfigs(argv[4], argv[3]);
@@ -80,8 +80,8 @@ int main(int argc, char* argv[]) {
   gSystem->Load("libTree");
   TFile infile(argv[1]);
   TTree* t = (TTree*)infile.Get("t");
-  caen_1742 c;
-  t->SetBranchAddress("caen_0", &c.system_clock);
+  daq::caen_5730 c;
+  t->SetBranchAddress("caen_5730", &c.event_index);
 
   // process traces
   // cout << "Processing traces... " << endl;
@@ -89,6 +89,7 @@ int main(int argc, char* argv[]) {
   TH1D pseudoTimesHist("ptimes", "ptimes", nBinsPseudoTime, 0, 1);
   TH1D normalizedMaxes("maxes", "maxes", 100, 0.0, 0.0);
   TH1D integralHist("integrals", "integrals", 100, 0.0, 0.0);
+  //  cout << t->GetEntries() << endl;
   for (int i = 0; i < t->GetEntries(); ++i) {
     t->GetEntry(i);
     summaries[i] = processTrace(c.trace[channel]);
@@ -96,7 +97,7 @@ int main(int argc, char* argv[]) {
     normalizedMaxes.Fill(summaries[i].normalizedAmpl);
     integralHist.Fill(summaries[i].integral);
     if (i % 1000 == 0) {
-      // cout << "Trace " << i << " processed." << endl;
+      //      cout << "Trace " << i << " processed." << endl;
     }
   }
   pseudoTimesHist.Scale(1.0 / pseudoTimesHist.Integral());
@@ -233,6 +234,8 @@ traceSummary processTrace(unsigned short* trace) {
 
   // get the baseline
   if (maxdex - baselineFitLength - bufferZone < 0) {
+    //    cout << maxdex << endl;
+    //    cin.ignore();
     cout << "Baseline fit walked off the end of the trace!" << endl;
     results.bad = true;
     return results;
@@ -279,7 +282,7 @@ vector<double> correctTrace(unsigned short* trace, const traceSummary &summary) 
 void readConfigs(const char* fitConf, const char* detectorName) {
   // first read the templateConf
   const char* tempConfName =
-      "/home/newg2/Workspace/L1Tests/fitting/config/makeTemplateConf.json";
+      "/home/venanzoni/testBeam/L1Fitting/config/makeTemplateConf.json";
   std::stringstream ss;
   std::ifstream configfile(tempConfName);
   ss << configfile.rdbuf();
@@ -316,7 +319,7 @@ void readConfigs(const char* fitConf, const char* detectorName) {
   bool found = false;
   for (auto dig : confMap.at("digitizers").array_items()) {
     auto digMap = dig.object_items();
-    if (digMap.at("type") == "caen1742") {
+    if (digMap.at("type") == "caen5730") {
       for (auto det : digMap.at("detectors").array_items()) {
         if (det.object_items().at("name") == detectorName) {
           found = true;

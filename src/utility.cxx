@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 #include "TFile.h"
 #include "TF1.h"
@@ -30,7 +31,7 @@ json11::Json valueFromDetectorOrDefault(const std::string& key,
 }
 
 json11::Json parseConfig(const std::string& confFileName,
-                         std::vector<digitizer>& digs) {
+                         std::vector<std::unique_ptr<digitizer>>& digs) {
   std::stringstream ss;
   std::ifstream configfile(confFileName);
   ss << configfile.rdbuf();
@@ -48,16 +49,29 @@ json11::Json parseConfig(const std::string& confFileName,
   bool drawingAny = false;
   auto defaults = confJson["defaultDetector"].object_items();
   for (const auto& digEntry : confJson["digitizers"].array_items()) {
-    digs.push_back(digitizer());
     auto digMap = digEntry.object_items();
-    digs.back().type = digMap.at("type").string_value();
-    digs.back().branchName = digMap.at("branchName").string_value();
+    auto type = digMap.at("type").string_value();
+    if (type == "caen5730") {
+      digs.emplace_back(new digitizerCaen5730);
+    } else if (type=="caen1742"){
+    } else {
+      std::cerr << "unknown digitizer type " << type << ". exiting." << std::endl;
+      exit(EXIT_FAILURE);
+    }
+    
+    if (digEntry["detectors"].array_items().size() == 0){
+      continue;
+    }
+
+    digs.back()->type = type;
+
+    digs.back()->branchName = digMap.at("branchName").string_value();
 
     for (const auto detEntry : digEntry["detectors"].array_items()) {
       auto detectorMap = detEntry.object_items();
 
-      digs.back().detectors.push_back(detector());
-      struct detector& thisDetector = digs.back().detectors.back();
+      digs.back()->detectors.push_back(detector());
+      struct detector& thisDetector = digs.back()->detectors.back();
 
       thisDetector.name = detectorMap.at("name").string_value();
 
@@ -80,7 +94,10 @@ json11::Json parseConfig(const std::string& confFileName,
               .int_value();
       thisDetector.conf.peakIndex =
           valueFromDetectorOrDefault("peakIndex", detectorMap, defaults)
-              .int_value();
+              .int_value();     
+      thisDetector.conf.wiggleRoom =
+          valueFromDetectorOrDefault("wiggleRoom", detectorMap, defaults)
+              .int_value();   
       thisDetector.conf.negPolarity =
           valueFromDetectorOrDefault("negPolarity", detectorMap, defaults)
               .bool_value();
@@ -93,7 +110,7 @@ json11::Json parseConfig(const std::string& confFileName,
           thisDetector.conf.templateLength - thisDetector.conf.templateBuffer,
           10000);
 
-      if ((!drawingAny)) {
+      if (!drawingAny) {
         drawingAny = thisDetector.conf.draw;
       }
     }

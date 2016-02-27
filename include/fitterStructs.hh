@@ -8,7 +8,7 @@
 #include <map>
 #include <string>
 
-#include "daqStructs.hh"
+#include "common.hh"
 
 /**
  * structs used in pulse analysis program
@@ -30,6 +30,7 @@ struct fitConfiguration {
   Double_t templateLength;
   UInt_t fitLength;
   UInt_t peakIndex;
+  UInt_t wiggleRoom;
   Bool_t negPolarity;
   Bool_t draw;
 };
@@ -42,10 +43,21 @@ struct detector {
   pulseSummary pSum;
 };
 
-struct digitizer {
-  caen_1742
-      daqData;  // will have to be variant if more than one type of digitizer
+class digitizer {
+public:
+  virtual UShort_t* getTrace(int i) = 0;
+  virtual ULong64_t* getStructAddress() = 0;
   std::string type;
   std::string branchName;
   std::vector<detector> detectors;
+  std::size_t traceLen;
+};
+
+class digitizerCaen5730 : public digitizer {
+public:
+  digitizerCaen5730() { traceLen = CAEN_5730_LN; }
+  UShort_t* getTrace(int i) { return data.trace[i]; }
+  ULong64_t* getStructAddress() { return &data.event_index; }
+private:
+  daq::caen_5730 data; 
 };

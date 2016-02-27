@@ -47,15 +47,15 @@ class digitizer {
 public:
   virtual UShort_t* getTrace(int i) = 0;
   virtual ULong64_t* getStructAddress() = 0;
+  virtual std::size_t getTraceLength() const = 0;
   std::string type;
   std::string branchName;
   std::vector<detector> detectors;
-  std::size_t traceLen;
 };
 
 class digitizerCaen5730 : public digitizer {
 public:
-  digitizerCaen5730() { traceLen = CAEN_5730_LN; }
+  std::size_t getTraceLength() const { return CAEN_5730_LN; }
   UShort_t* getTrace(int i) { return data.trace[i]; }
   ULong64_t* getStructAddress() { return &data.event_index; }
 private:

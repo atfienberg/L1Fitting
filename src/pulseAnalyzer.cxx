@@ -106,8 +106,9 @@ int main(int argc, char const* argv[]) {
     for (auto& dig : digs) {
       if (dig->type == "caen5730") {
         for (auto& det : dig->detectors) {
-	  //	  const UShort_t* trace = dig->getTrace(det.conf.channel);
-          processTrace(dig->getTrace(det.conf.channel), det, dig->traceLen);
+          processTrace(dig->getTrace(det.conf.channel), 
+		       det, 
+		       dig->getTraceLength());
         }
       }
     }

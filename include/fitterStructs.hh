@@ -61,3 +61,12 @@ public:
 private:
   daq::caen_5730 data; 
 };
+
+class digitizerCaen5742 : public digitizer {
+public:
+  std::size_t getTraceLength() const { return CAEN_6742_LN; }
+  UShort_t* getTrace(int i) { return data.trace[i]; }
+  ULong64_t* getStructAddress() { return &data.system_clock; }
+private:
+  daq::caen_6742 data; 
+};

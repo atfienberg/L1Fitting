@@ -74,7 +74,6 @@ int main(int argc, char const* argv[]) {
   }
 
   std::vector< std::unique_ptr<digitizer> > digs;
-  std::cout << "parse configs" << std::endl;
   auto conf = parseConfig(configfile, digs);
 
   // setup input and output files and trees
@@ -85,11 +84,13 @@ int main(int argc, char const* argv[]) {
   TFile outf(argv[2], "recreate");
   TTree outTree("t", "t");
   for (auto& dig : digs) {
-    if (dig->type == "caen5730") {
+
+    if ((dig->type == "caen5730")
+	|| (dig->type == "caen6742")) {
       inTree->SetBranchStatus(dig->branchName.c_str(), 1);
 
-      std::cout << inTree->SetBranchAddress(dig->branchName.c_str(),
-					    dig->getStructAddress()) << std::endl;
+      inTree->SetBranchAddress(dig->branchName.c_str(),
+			       dig->getStructAddress());
 
       for (auto& det : dig->detectors) {
         outTree.Branch(

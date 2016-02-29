@@ -60,7 +60,7 @@ int main(int argc, char const* argv[]) {
     exit(EXIT_FAILURE);
   } else if (argc == 3) {
     configfile =
-      "/home/venanzoni/testBeam/L1Fitting/config/"
+      "/home/testbeam/Workspace/analysis/fitting/config/"
       "defaultFitConfig.json";
   } else {
     configfile = argv[3];

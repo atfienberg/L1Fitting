@@ -23,7 +23,7 @@
     }
   ],
 
-  "templateBaseDir": "/home/venanzoni/testBeam/L1Fitting/build/",
+  "templateBaseDir": "/home/testbeam/Workspace/analysis/fitting/templates/test/",
   
   "defaultDetector": {
     "templateBuffer": 10,
@@ -32,7 +32,7 @@
     "peakIndex": 14,
     "wiggleRoom": 3,
     "negPolarity": true,
-    "draw": true
+    "draw": false
   },
 
   "startEntry": 0

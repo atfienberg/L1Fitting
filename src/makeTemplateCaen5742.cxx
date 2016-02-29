@@ -25,7 +25,7 @@
 
 #include "json11.hpp"
 
-#include "daqStructs.hh"
+#include "common.hh"
 #include "fitterStructs.hh"
 
 using namespace std;
@@ -34,7 +34,7 @@ namespace {
 int templateLength;
 int nBinsPseudoTime;
 int nTimeBins;
-int traceLength = CAEN_1742_LN;
+int traceLength = CAEN_6742_LN;
 int baselineFitLength;
 int bufferZone;
 int minPeak;
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
   gSystem->Load("libTree");
   TFile infile(argv[1]);
   TTree* t = (TTree*)infile.Get("t");
-  caen_1742 c;
+  daq::caen_6742 c;
   t->SetBranchAddress("caen_0", &c.system_clock);
 
   // process traces
@@ -316,7 +316,7 @@ void readConfigs(const char* fitConf, const char* detectorName) {
   bool found = false;
   for (auto dig : confMap.at("digitizers").array_items()) {
     auto digMap = dig.object_items();
-    if (digMap.at("type") == "caen1742") {
+    if (digMap.at("type") == "caen5742") {
       for (auto det : digMap.at("detectors").array_items()) {
         if (det.object_items().at("name") == detectorName) {
           found = true;

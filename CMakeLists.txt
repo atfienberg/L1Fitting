@@ -18,17 +18,17 @@ set(projectincludes  ${PROJECT_SOURCE_DIR}/include
 include_directories(${projectincludes})
 include_directories(${ROOT_INCLUDE_DIRS}) 
 include_directories(${EIGEN_DIR})
-include_directories(${PROJECT_SOURCE_DIR}/../italian-testbeam-daq/fast/core/include)
+include_directories(${PROJECT_SOURCE_DIR}/../../italian-testbeam-daq/fast/core/include)
 
 add_library(projectlibs STATIC ${libsrcs} ${utility})
 target_link_libraries(projectlibs ${ROOT_LIBRARIES})
 
 add_executable (pulseAnalysis ${PROJECT_SOURCE_DIR}/src/pulseAnalyzer.cxx)
-add_executable (makeCaen1742Template ${PROJECT_SOURCE_DIR}/src/makeTemplateCaen1742.cxx)
+add_executable (makeCaen5742Template ${PROJECT_SOURCE_DIR}/src/makeTemplateCaen5742.cxx)
 add_executable (makeCaen5730Template ${PROJECT_SOURCE_DIR}/src/makeTemplateCaen5730.cxx)
 
 target_link_libraries(pulseAnalysis projectlibs)
-target_link_libraries(makeCaen1742Template projectlibs)
+target_link_libraries(makeCaen5742Template projectlibs)
 target_link_libraries(makeCaen5730Template projectlibs)
 
-install(TARGETS makeCaen1742Template makeCaen5730Template pulseAnalysis DESTINATION ${PROJECT_SOURCE_DIR}/bin/)
+install(TARGETS makeCaen5742Template makeCaen5730Template pulseAnalysis DESTINATION ${PROJECT_SOURCE_DIR}/../bin/)

@@ -53,7 +53,8 @@ json11::Json parseConfig(const std::string& confFileName,
     auto type = digMap.at("type").string_value();
     if (type == "caen5730") {
       digs.emplace_back(new digitizerCaen5730);
-    } else if (type=="caen1742"){
+    } else if (type=="caen5742"){
+      digs.emplace_back(new digitizerCaen5742);
     } else {
       std::cerr << "unknown digitizer type " << type << ". exiting." << std::endl;
       exit(EXIT_FAILURE);
@@ -132,9 +133,9 @@ void displayFit(TemplateFitter& tf, const TemplateFitter::Output& out,
   std::cout << det.name << std::endl;
 
   for (int i = 0; i < nPulses; ++i) {
-    std::cout << "t" << i + 1 << ": " << out.times[0] + sampleTimes[0]
+    std::cout << "t" << i + 1 << ": " << out.times[i] + sampleTimes[0]
               << " +/- " << sqrt(tf.getCovariance(i, i)) << std::endl;
-    std::cout << "scale" << i + 1 << ": " << out.scales[0] << " +/- "
+    std::cout << "scale" << i + 1 << ": " << out.scales[i] << " +/- "
               << sqrt(tf.getCovariance(i + nPulses, i + nPulses)) << std::endl;
   }
   std::cout << "pedestal: " << out.pedestal << " +/- "
@@ -208,9 +209,9 @@ void displayFit(TemplateFitter& tf, const TemplateFitter::Output& out,
 
   std::vector<std::unique_ptr<TF1>> components;
   if (nPulses > 1) {
-    int colors[3] = {kRed, kBlue, kMagenta + 2};
+    int colors[3] = {kRed, kBlue};
     for (int i = 0; i < nPulses; ++i) {
-      components.emplace_back(new TF1("fitFunc", templateFunction, 0, 30, 7));
+      components.emplace_back(new TF1("fitFunc", templateFunction, sampleTimes[0], sampleTimes.back(), 7));
       components.back()->SetParameters(std::vector<double>(7, 0).data());
       components.back()->SetParameter(6, out.pedestal);
       components.back()->SetParameter(2 * i, out.times[i] + sampleTimes[0]);
@@ -223,7 +224,7 @@ void displayFit(TemplateFitter& tf, const TemplateFitter::Output& out,
 
   func->SetNpx(1000);
   func->Draw("same");
-  func->SetLineColor(kRed);
+  func->SetLineColor(kMagenta + 2);
   txtbox->Draw("same");
   c->Print((det.name + ".pdf").c_str());
   c->Write();

@@ -1,30 +1,48 @@
 {
   "author": "Aaron Fienberg",
   "comment": "This file contains configuration info needed for pulse analysis",
-  
+
   "digitizers": [
     {
-      "type": "caen1742",
-      "branchName": "caen_0",
+      "type": "caen5742",
+      "branchName": "caen_5742",
       "detectors": [
-       
-      ]
-    },
-    {
-      "type": "caen5730",
-      "branchName": "caen_5730",
-      "detectors": [
+        {
+          "name": "sipmLeft",
+          "templateFile": "sipmLeftTemplate.root",
+          "channel": 9
+        },
+        {
+          "name": "sipmMid",
+          "templateFile": "sipmMidTemplate.root",
+          "channel": 10
+        },
+        {
+          "name": "sipmRight",
+          "templateFile": "sipmRightTemplate.root",
+          "channel": 11
+        },
+        {
+          "name": "sipmTop",
+          "templateFile": "sipmTopTemplate.root",
+          "channel": 12
+        },
         {
           "name": "pmt1",
           "templateFile": "pmt1Template.root",
           "channel": 2
+        },
+        {
+          "name": "pmt2",
+          "templateFile": "pmt2Template.root",
+          "channel": 3
         }
       ]
     }
   ],
 
-  "templateBaseDir": "/home/testbeam/Workspace/analysis/fitting/templates/test/",
-  
+  "templateBaseDir": "/Users/atfienberg/g-2/frascati/L1Fitting/templates",
+
   "defaultDetector": {
     "templateBuffer": 10,
     "templateLength": 100,
@@ -32,8 +50,7 @@
     "peakIndex": 14,
     "wiggleRoom": 3,
     "negPolarity": true,
-    "draw": false
+    "draw": true
   },
-
-  "startEntry": 0
+  "startEntry": 50000
 }

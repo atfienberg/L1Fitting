@@ -1,9 +1,8 @@
 cmake_minimum_required (VERSION 2.6)
 
 project (L1PulseAnalysis)
-execute_process(COMMAND root-config --cflags OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE ROOTCFLAGS)
-set(ROOT_LIBRARIES -L/usr/lib/i386-linux-gnu -lCore -lCint -lRIO -lNet -lHist -lGraf -lGpad -lTree -lRint -lMatrix -lMathCore -lThread -pthread -lm -ldl -rdynamic)
-set(EIGEN_DIR /usr/include/eigen3)
+find_package(ROOT REQUIRED)
+set(EIGEN_DIR /usr/local/include/eigen3)
 
 add_definitions(-std=c++0x -Wall -Wextra ${ROOTCFLAGS})
 
@@ -18,7 +17,7 @@ set(projectincludes  ${PROJECT_SOURCE_DIR}/include
 include_directories(${projectincludes})
 include_directories(${ROOT_INCLUDE_DIRS}) 
 include_directories(${EIGEN_DIR})
-include_directories(${PROJECT_SOURCE_DIR}/../../italian-testbeam-daq/fast/core/include)
+include_directories(${PROJECT_SOURCE_DIR}/../italian-testbeam-daq/fast/core/include)
 
 add_library(projectlibs STATIC ${libsrcs} ${utility})
 target_link_libraries(projectlibs ${ROOT_LIBRARIES})

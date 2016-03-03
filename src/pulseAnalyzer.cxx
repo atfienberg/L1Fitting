@@ -47,8 +47,8 @@ json11::Json parseConfig(const std::string& confFileName,
  * @brief Display a root plot of a pulse fit
  */
 void displayFit(TemplateFitter& tf, const TemplateFitter::Output& out,
-                const std::vector<UShort_t>& sampleTimes, const std::vector<UShort_t>& trace,
-                const detector& det);
+                const std::vector<UShort_t>& sampleTimes,
+                const std::vector<UShort_t>& trace, const detector& det);
 
 void processTrace(UShort_t* trace, detector& det, std::size_t len);
 
@@ -60,8 +60,8 @@ int main(int argc, char const* argv[]) {
     exit(EXIT_FAILURE);
   } else if (argc == 3) {
     configfile =
-      "/home/testbeam/Workspace/analysis/fitting/config/"
-      "defaultFitConfig.json";
+        "/Users/atfienberg/g-2/frascati/L1Fitting/config/"
+        "defaultFitConfig.json";
   } else {
     configfile = argv[3];
   }
@@ -73,7 +73,7 @@ int main(int argc, char const* argv[]) {
     }
   }
 
-  std::vector< std::unique_ptr<digitizer> > digs;
+  std::vector<std::unique_ptr<digitizer>> digs;
   auto conf = parseConfig(configfile, digs);
 
   // setup input and output files and trees
@@ -84,19 +84,17 @@ int main(int argc, char const* argv[]) {
   TFile outf(argv[2], "recreate");
   TTree outTree("t", "t");
   for (auto& dig : digs) {
-
-    if ((dig->type == "caen5730")
-	|| (dig->type == "caen6742")) {
+    if ((dig->type == "caen5730") || (dig->type == "caen5742")) {
       inTree->SetBranchStatus(dig->branchName.c_str(), 1);
 
       inTree->SetBranchAddress(dig->branchName.c_str(),
-			       dig->getStructAddress());
+                               dig->getStructAddress());
 
       for (auto& det : dig->detectors) {
         outTree.Branch(
-		       det.name.c_str(), &det.pSum.energy,
-		       "energy/D:baseline/D:threeSampleAmpl/D:time/D:threeSampleTime/"
-		       "D:chi2/D:fitConverged/O");
+            det.name.c_str(), &det.pSum.energy,
+            "energy/D:baseline/D:threeSampleAmpl/D:time/D:threeSampleTime/"
+            "D:chi2/D:fitConverged/O:successfulFit/O");
       }
     }
   }
@@ -104,12 +102,15 @@ int main(int argc, char const* argv[]) {
   for (int i = conf["startEntry"].int_value(); i < inTree->GetEntries(); ++i) {
     inTree->GetEntry(i);
 
+    if (i % 10000 == 0) {
+      std::cout << "event " << i << std::endl;
+    }
+
     for (auto& dig : digs) {
-      if (dig->type == "caen5730") {
+      if ((dig->type == "caen5730") || (dig->type == "caen5742")) {
         for (auto& det : dig->detectors) {
-          processTrace(dig->getTrace(det.conf.channel), 
-		       det, 
-		       dig->getTraceLength());
+          processTrace(dig->getTrace(det.conf.channel), det,
+                       dig->getTraceLength());
         }
       }
     }
@@ -131,14 +132,17 @@ void processTrace(UShort_t* trace, detector& det, std::size_t len) {
     peakptr = std::max_element(trace, trace + len);
   }
 
-  assert(peakptr - det.conf.peakIndex >= trace);
-  assert(peakptr - det.conf.peakIndex + det.conf.fitLength <=
-	 trace + len);
-  std::copy(peakptr - det.conf.peakIndex,
-	    peakptr - det.conf.peakIndex + det.conf.fitLength,
-	    fitSamples.begin());
+  if ((*peakptr < 3000) || (*peakptr > 3450)) {
+    return;
+  }
 
-  //try fit at 3 different starting points before giving up
+  assert(peakptr - det.conf.peakIndex >= trace);
+  assert(peakptr - det.conf.peakIndex + det.conf.fitLength <= trace + len);
+  std::copy(peakptr - det.conf.peakIndex,
+            peakptr - det.conf.peakIndex + det.conf.fitLength,
+            fitSamples.begin());
+
+  // try fit at 3 different starting points before giving up
   std::vector<int> timeOffsets = {0, 1, -1};
   TemplateFitter::Output out;
   bool successfulFit = false;
@@ -146,24 +150,50 @@ void processTrace(UShort_t* trace, detector& det, std::size_t len) {
     // for now noise is set to one here, doesn't matter as long as it's flat
     out = det.fitter.fit(fitSamples, det.conf.peakIndex + timeOffsets[i]);
     if ((std::abs(out.times[0] - det.conf.peakIndex) < det.conf.wiggleRoom) &&
-	(out.converged) &&
-	(det.conf.negPolarity ? (out.scales[0] < 0) : (out.scales[0] > 0))) {
-        successfulFit = true;
+        (out.converged) &&
+        (det.conf.negPolarity ? (out.scales[0] < 0) : (out.scales[0] > 0))) {
+      successfulFit = true;
     }
   }
-  
-  double tsa =
-    peakptr[0] +
-    (peakptr[1] - peakptr[-1]) * (peakptr[1] - peakptr[-1]) /
-    (16.0 * peakptr[0] - 8.0 * (peakptr[1] + peakptr[-1]));
-  double tst =
-    peakptr - trace +
-    (peakptr[1] - peakptr[-1]) /
-    (4.0 * peakptr[0] - 2.0 * (peakptr[1] + peakptr[-1]));
+
+  if (out.chi2 > 150) {
+    // try double pulse fit
+    auto correctedSamples = fitSamples;
+    for (std::size_t i = 0; i < correctedSamples.size(); ++i) {
+      correctedSamples[i] -=
+          (out.scales[0] * det.templateSpline->Eval(i - out.times[0]) +
+           out.pedestal);
+    }
+    double secondPeak =
+        std::min_element(correctedSamples.begin(), correctedSamples.end()) -
+        correctedSamples.begin();
+    std::cout << "Second peak raw: " << secondPeak << std::endl;
+    std::cout << "Second peak: "
+              << secondPeak + (peakptr - trace - det.conf.peakIndex)
+              << std::endl;
+    out = det.fitter.fit(fitSamples,
+                         {static_cast<double>(det.conf.peakIndex), secondPeak});
+
+    std::vector<std::pair<double, double>> timeTries = {
+        {-2, 1}, {-1, 1}, {-2, 2}, {-5, 0}, {0, 5}, {-10,0}, {0, 10}};
+    for (std::size_t i = 0; (out.chi2 > 200) && (i < timeTries.size()); ++i) {
+      std::cout << "second double fit try " << i << std::endl;
+      out = det.fitter.fit(fitSamples,
+                           {det.conf.peakIndex + timeTries[i].first,
+                            det.conf.peakIndex + timeTries[i].second});
+    }
+  }
+
+  double tsa = peakptr[0] +
+               (peakptr[1] - peakptr[-1]) * (peakptr[1] - peakptr[-1]) /
+                   (16.0 * peakptr[0] - 8.0 * (peakptr[1] + peakptr[-1]));
+  double tst = peakptr - trace +
+               (peakptr[1] - peakptr[-1]) /
+                   (4.0 * peakptr[0] - 2.0 * (peakptr[1] + peakptr[-1]));
 
   det.pSum = {out.scales[0], out.pedestal, tsa - out.pedestal,
-	      out.times[0] + (peakptr - trace), tst, out.chi2,
-	      out.converged};
+              out.times[0] + (peakptr - trace - det.conf.peakIndex), tst,
+              out.chi2, out.converged, successfulFit};
 
   if (det.conf.negPolarity) {
     det.pSum.energy *= -1;
@@ -172,8 +202,7 @@ void processTrace(UShort_t* trace, detector& det, std::size_t len) {
 
   if (det.conf.draw) {
     std::vector<UShort_t> times(fitSamples.size());
-    std::iota(times.begin(), times.end(),
-	      peakptr - det.conf.peakIndex - trace);
+    std::iota(times.begin(), times.end(), peakptr - det.conf.peakIndex - trace);
     displayFit(det.fitter, out, times, fitSamples, det);
   }
 }

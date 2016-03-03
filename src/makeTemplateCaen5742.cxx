@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 
   if (argc == 4) {
     readConfigs(
-        "/home/newg2/Workspace/L1Tests/fitting/config/defaultFitConfig.json",
+        "/Users/atfienberg/g-2/frascati/L1Fitting/config/defaultFitConfig.json",
         argv[3]);
   } else {
     readConfigs(argv[4], argv[3]);
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
   TFile infile(argv[1]);
   TTree* t = (TTree*)infile.Get("t");
   daq::caen_6742 c;
-  t->SetBranchAddress("caen_0", &c.system_clock);
+  t->SetBranchAddress("caen_5742", &c.system_clock);
 
   // process traces
   // cout << "Processing traces... " << endl;
@@ -279,7 +279,7 @@ vector<double> correctTrace(unsigned short* trace, const traceSummary &summary) 
 void readConfigs(const char* fitConf, const char* detectorName) {
   // first read the templateConf
   const char* tempConfName =
-      "/home/newg2/Workspace/L1Tests/fitting/config/makeTemplateConf.json";
+      "/Users/atfienberg/g-2/frascati/L1Fitting/config/makeTemplateConf.json";
   std::stringstream ss;
   std::ifstream configfile(tempConfName);
   ss << configfile.rdbuf();
